@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginValidator, signupValidator } from "../middleware/request-body-validators";
+import { loginValidator, signupValidator } from "../middleware/request-body-validation-middleware";
 import { loginController, signupController } from "../controller/auth-controller";
 
 const authRouter: Router = Router();

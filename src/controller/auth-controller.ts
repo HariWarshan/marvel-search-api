@@ -1,14 +1,16 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IRequestBodySignup, IRequestLogin } from "../types/request-body-types";
-import { AppDataSource } from "../database";
-import { UserModel } from "../database/entity/user";
+import AppDataSource from "../database";
+import { UserModel } from "../database/entity/user.model";
 import { generateAccessToken, generateSaltedHash, responseTransformer } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 import { CustomError } from "../utils/custom-error";
+import { ACCESS_TOKEN_EXPIRY, RESPONSE_MESSAGE_CONSTANTS } from "../constants";
+import { QueryFailedError } from "typeorm";
 
-export const signupController: any = async (request:Request, response:Response, next: NextFunction) => {
+export const signupController = async (request:Request, response:Response, next: NextFunction) => {
   try{
-    
+
     const {
       email,
       name,
@@ -24,23 +26,23 @@ export const signupController: any = async (request:Request, response:Response, 
       email,
       phone_number: phone_number,
       password: generateSaltedHash(password, process.env.PASSWORD_SALT_VALUE as string),
-      // [todo]: add a validation for number of min char a password should have
     })
 
-    return response.status(201).json(responseTransformer('Signup successful'))
+    return response.status(201).json(responseTransformer(RESPONSE_MESSAGE_CONSTANTS.SUCCESS))
 
-  }catch(err: any){
-    // [todo] check if this is feasible with mysql
-    if(err.driverError.routine==='_bt_check_unique'){
-      err.statusCode = 409
-      err.message = "account already exist with this phone number"
+  }catch(err){
+
+    // [todo] check if this is feasible with mysql    
+    if(err instanceof QueryFailedError && err.driverError.routine==='_bt_check_unique'){
+      return next(new CustomError(`account already exist with this phone number`, 409))
     }
+
     next(err)
   }
 }
 
 
-export const loginController: any = async (request:Request, response:Response, next: NextFunction) => {
+export const loginController = async (request:Request, response:Response, next: NextFunction) => {
   try{
 
     const {
@@ -51,11 +53,11 @@ export const loginController: any = async (request:Request, response:Response, n
     const userRepository = AppDataSource.getRepository(UserModel)
 
     const currentUser = await userRepository.findOne({
-      where: {phone_number}
+      where: { phone_number }
     })
     
     if(!currentUser){
-      throw new CustomError(`user with phone number ${phone_number} doesn't exist`, 404)
+      throw new CustomError(`user with phone number ${phone_number}, doesn't exist`, 404)
     }
 
     const saltedHashPassword = generateSaltedHash(password, process.env.PASSWORD_SALT_VALUE as string)
@@ -68,12 +70,10 @@ export const loginController: any = async (request:Request, response:Response, n
       phone_number: currentUser.phone_number
     })
 
-    console.log(accessToken,'accessToken')
-
-    return response.status(200).json(responseTransformer('Login successful', {
+    return response.status(200).json(responseTransformer(RESPONSE_MESSAGE_CONSTANTS.SUCCESS, {
       token_type: "Bearer",
       access_token: accessToken,
-      expires_in: 3600
+      expires_in: ACCESS_TOKEN_EXPIRY
     }))
 
   }catch(err){

@@ -1,4 +1,4 @@
-import { ErrorRequestHandler, NextFunction } from "express";
+import { ErrorRequestHandler } from "express";
 import Joi from "joi";
 
 const parseErrorsFromJoi = (error: Joi.ValidationError) => {
@@ -7,9 +7,17 @@ const parseErrorsFromJoi = (error: Joi.ValidationError) => {
 
 export const errorHandlerMiddleware: ErrorRequestHandler = (err, req, res, next) => {
   if(err.isJoi){
+    
     const parsedError = parseErrorsFromJoi(err)
-    res.status(400).json({ error: parsedError });
+    const statusCode = 400
+
+    res.status(statusCode).json({ error : {
+      statusCode, message: "validation error", data: parsedError
+    }});
   }else{
-    res.status(err.statusCode || 500).json({ error: err.message || 'Internal Server Error' });
+    const statusCode = err.statusCode || 500
+    res.status(statusCode).json({ error: {
+      statusCode,  message: err.message || 'Internal Server Error' 
+    }});
   }
 };

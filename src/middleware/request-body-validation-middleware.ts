@@ -10,7 +10,7 @@ export const signupValidator = async (request: Request, response: Response, next
 
   const schema = Joi.object({
     name: Joi.string().required(),
-    email: Joi.string().required(),
+    email: Joi.string().email().required(),
     phone_number: Joi.string().required(),
     password: Joi.string().required(),
   })
