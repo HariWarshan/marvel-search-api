@@ -26,13 +26,13 @@ Make sure you have the following installed on your machine:
 
 ```
 NODE_APPLICATION_PORT = 3000
-DB_HOST = <host>
-DB_PORT = <port>
+DB_HOST = <database server host>
+DB_PORT = <database server port>
 DB_USERNAME = <database server username>
 DB_PASSWORD = <database server password>
 DB_NAME = <database name>
-PASSWORD_SALT_VALUE = AX12Mik9Op
-ACCESS_TOKEN_SECRET_VALUE = G7ghdfy35va9b3a1Bc7DOp0z2Ae4Bf8Cg5Dh7Ei9F
+PASSWORD_SALT_VALUE = <add random salt value for hashing the password>
+ACCESS_TOKEN_SECRET_VALUE = <add random secret value>
 MARVEL_API_PUBLIC_KEY = <your marvel API public key>
 MARVEL_API_PRIVATE_KEY = <your marvel API private key>
 ```
