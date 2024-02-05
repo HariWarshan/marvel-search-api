@@ -4,6 +4,6 @@ import { tokenValidationMiddleware } from "../middleware/token-validation-middle
 
 const marvelRouter: Router = Router();
 
-marvelRouter.route('/').get(tokenValidationMiddleware, getMarvelCharactersController)
+marvelRouter.route('/characters').get(tokenValidationMiddleware, getMarvelCharactersController)
 
 export default marvelRouter;
